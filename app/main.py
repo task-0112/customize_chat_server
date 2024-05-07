@@ -1,8 +1,23 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.endpoints import (
+    tests_endpoint,
+)
+
+from app.core.config import settings
+from app.core.logging import init_logging
 
 app = FastAPI()
 
+init_logging()
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.FRONTEND_URL],  # フロントエンドのオリジンを許可
+    allow_credentials=True,
+    allow_methods=["*"],  # すべてのHTTPメソッドを許可
+    allow_headers=["*"],  # すべてのHTTPヘッダーを許可
+)
+
+app.include_router(tests_endpoint.router, prefix="/api/v1", tags=["tests"])

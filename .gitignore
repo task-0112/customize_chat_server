@@ -11,3 +11,5 @@ venv/
 .vscode/
 generate_project_summary.py
 customize_chat_server_project_summary.txt
+.summaryignore
+customize_chat_server.code-workspace

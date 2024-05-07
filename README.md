@@ -13,7 +13,7 @@
 1. リポジトリをクローンします。
 
    ```bash
-   git clone git@github.com:arsaga-partners/ar-agent-server.git
+   git clone git@github.com:task-0112/customize_chat_server.git
    ```
 
 1. dockerを立ち上げます。

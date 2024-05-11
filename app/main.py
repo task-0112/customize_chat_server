@@ -7,9 +7,9 @@ from app.api.endpoints import (
 
 from app.core.config import settings
 from app.core.logging import init_logging
+from app.settings.route import init_route
 
 app = FastAPI()
-
 init_logging()
 
 app.add_middleware(
@@ -21,3 +21,4 @@ app.add_middleware(
 )
 
 app.include_router(tests_endpoint.router, prefix="/api/v1", tags=["tests"])
+init_route(app)

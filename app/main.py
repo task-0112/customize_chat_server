@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import (
     tests_endpoint,
 )
+
 from app.core.config import settings
 from app.core.logging import init_logging
 from app.settings.route import init_route

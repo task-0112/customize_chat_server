@@ -1,14 +1,13 @@
 """
-ChatGpt選択時の回答
+ChatGpt選択時の通常回答
 """
 
-import os
-import openai
+from app.settings.env import Env
 from app.models.category import GPTType
+import openai
 
 # OpenAI APIキーを設定
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
+openai.api_key = Env.OPENAI_API_KEY
 
 
 class GptNomalStreemResponse:

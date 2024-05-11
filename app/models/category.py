@@ -4,10 +4,6 @@ from enum import Enum
 class GPTType(Enum):
     GPT35Turbo = 0
     GPT4 = 1
-    GeminiPro = 2
-    Claude3Opus = 3
-    Claude3Sonnet = 4
-    Claude3Haiku = 5
 
     def get_gpt_model_name(self):
         if self == GPTType.GPT35Turbo:

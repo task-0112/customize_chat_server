@@ -2,37 +2,50 @@
 ChatGpt選択時の通常回答
 """
 
-from app.settings.env import Env
-from app.models.category import GPTType
+import logging
+from fastapi import WebSocket
 import openai
+from app.models.category import GPTType
+from app.settings.env import Env
+from app.schemas.streaming_response import BaseStreamingResponse
 
 # OpenAI APIキーを設定
 openai.api_key = Env.OPENAI_API_KEY
 
+logging.basicConfig(level=logging.INFO)
 
-class GptNomalStreemResponse:
-    def __init__(self, model_type: int):
-        self.model_type = model_type
 
-    def get_model_name(self):
-        gpt_type = GPTType(self.model_type)
+class GptNomalStreemResponse(BaseStreamingResponse):
+    def __init__(self, websocket: WebSocket):
+        super().__init__(websocket)
+
+    def get_model_name(self, model_type: int):
+        gpt_type = GPTType(model_type)
         return gpt_type.get_gpt_model_name()
 
-    async def _generate_response(self, role: str, content: str):
+    async def handle_websocket(self):
+        await super().handle_websocket(self._generate_streaming_response)
+
+    async def _generate_streaming_response(
+        self, model_type: int, role: str, content: str
+    ):
         try:
-            model_name = self.get_model_name()
-            completion = openai.ChatCompletion.create(
+            model_name = self.get_model_name(model_type)
+            response = await openai.ChatCompletion.acreate(
                 model=model_name,
                 messages=[{"role": role, "content": content}],
                 stream=True,
             )
             buffer = ""
-            for chunk in completion:
+            async for chunk in response:
                 chunk_message = chunk["choices"][0]["delta"].get("content", "")
-                print("chunk_message", chunk_message)
-                yield {"data": chunk_message}
-            if buffer:
-                yield {"data": buffer}
-
+                if chunk_message:
+                    buffer += chunk_message
+                    await self.send_response_chunk(buffer)
+            if not self.stop_generating:
+                await self.end_response()
+            self.stop_generating = False
         except Exception as e:
-            raise e
+            logging.error(f"Error in generating response: {e}")
+            if self.websocket.application_state != "CLOSED":
+                await self.websocket.close()
